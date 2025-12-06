@@ -1,25 +1,14 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
-using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services; // Gọi Service
 
 namespace Nhom2_QuanLySinhVien
 {
     public partial class ThemLopHocPhan : UserControl
     {
-        private ConnectionData connectDB;
         public ThemLopHocPhan()
         {
             InitializeComponent();
-            string conString = "Data Source=(local);Initial Catalog=QUANLYSINHVIEN;Integrated Security=True;Encrypt=False;Trust Server Certificate=True";
-            connectDB = new ConnectionData(conString);
             LoadComboBoxData();
         }
 
@@ -27,25 +16,25 @@ namespace Nhom2_QuanLySinhVien
         {
             try
             {
-                string queryMonHoc = "SELECT MaMH, TenMH, CONCAT(MaMH, ' - ', TenMH) as Display FROM MonHoc";
-                DataTable dtMonHoc = connectDB.ExecuteQuery(queryMonHoc);
-                cbbMaMon.DataSource = dtMonHoc;
+                // Load Môn học từ Service
+                cbbMaMon.DataSource = LopHocPhanService.Instance.LayDanhSachMonHoc();
                 cbbMaMon.DisplayMember = "Display";
-                cbbMaMon.ValueMember = "MaMH";    
-                cbbMaMon.SelectedIndex = -1;
+                cbbMaMon.ValueMember = "Value";
+                cbbMaMon.SelectedIndex = -1; // Chưa chọn gì
 
-                string queryGiaoVien = "SELECT MaGV, HoTen, CONCAT(MaGV, ' - ', HoTen) as Display FROM GiaoVien";
-                DataTable dtGiaoVien = connectDB.ExecuteQuery(queryGiaoVien);
-                cbbMaGV.DataSource = dtGiaoVien;
+                // Load Giáo viên từ Service
+                cbbMaGV.DataSource = LopHocPhanService.Instance.LayDanhSachGiaoVien();
                 cbbMaGV.DisplayMember = "Display";
-                cbbMaGV.ValueMember = "MaGV";
+                cbbMaGV.ValueMember = "Value";
                 cbbMaGV.SelectedIndex = -1;
 
+                // Load Học kỳ (Hardcode)
+                cbbHocKy.Items.Clear();
+                cbbHocKy.Items.AddRange(new object[] { "1", "2", "3" });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi load dữ liệu: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi");
             }
         }
 
@@ -55,74 +44,58 @@ namespace Nhom2_QuanLySinhVien
 
         private void btnXacNhan_Click_1(object sender, EventArgs e)
         {
-            try
+            // Validation
+            if (string.IsNullOrWhiteSpace(txtMaLHP.Text) ||
+                cbbMaMon.SelectedValue == null ||
+                cbbMaGV.SelectedValue == null ||
+                string.IsNullOrWhiteSpace(cbbHocKy.Text) ||
+                string.IsNullOrWhiteSpace(nbrNam.Value.ToString()))
             {
-                // Kiểm tra dữ liệu đầu vào
-                if (string.IsNullOrWhiteSpace(txtMaLHP.Text) ||
-                    cbbMaMon.SelectedValue == null ||
-                    cbbMaGV.SelectedValue == null ||
-                    string.IsNullOrWhiteSpace(cbbHocKy.Text) ||
-                    string.IsNullOrWhiteSpace(nbrNam.Value.ToString()))
-                {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                MessageBox.Show("Vui lòng nhập đầy đủ thông tin!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-                // Kiểm tra mã lớp học phần đã tồn tại chưa
-                string checkQuery = "SELECT COUNT(*) FROM LopHocPhan WHERE MaLop = @MaLop";
-                var checkParam = new SqlParameter("@MaLop", txtMaLHP.Text.Trim());
-                DataTable dt = connectDB.ExecuteQuery(checkQuery, new[] { checkParam });
-                if (Convert.ToInt32(dt.Rows[0][0]) > 0)
-                {
-                    MessageBox.Show("Mã lớp học phần đã tồn tại!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+            // Gọi Service để Thêm
+            // Logic kiểm tra trùng mã đã nằm trong Service rồi
+            bool ketQua = LopHocPhanService.Instance.Them(
+                txtMaLHP.Text.Trim(),
+                cbbMaMon.SelectedValue.ToString(),
+                cbbMaGV.SelectedValue.ToString(),
+                int.Parse(cbbHocKy.Text.Trim()),
+                nbrNam.Value
+            );
 
-                // Tạo câu lệnh SQL và parameters
-                string query = @"INSERT INTO LopHocPhan (MaLop, MaMH, MaGV, HocKy, Nam) 
-                    VALUES (@MaLop, @MaMH, @MaGV, @HocKy, @Nam)";
+            if (ketQua)
+            {
+                MessageBox.Show("Thêm lớp học phần thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                List<SqlParameter> parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@MaLop", txtMaLHP.Text.Trim()),
-                    new SqlParameter("@MaMH", cbbMaMon.SelectedValue),
-                    new SqlParameter("@MaGV", cbbMaGV.SelectedValue),
-                    new SqlParameter("@HocKy", cbbHocKy.Text.Trim()),
-                    new SqlParameter("@Nam", nbrNam.Value)
-                };
-
-                // Thực thi câu lệnh
-                connectDB.ExecuteNonQuery(query, parameters);
-
-                MessageBox.Show("Thêm lớp học phần thành công!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                // Clear các control sau khi thêm thành công
+                // Reset form để nhập tiếp
                 txtMaLHP.Clear();
                 cbbMaMon.SelectedIndex = -1;
                 cbbMaGV.SelectedIndex = -1;
                 cbbHocKy.SelectedIndex = -1;
                 nbrNam.Value = nbrNam.Minimum;
 
-                // Load lại form LopHocPhan
-                TrangChu trangChu = new TrangChu();
-                trangChu.Show();
-                trangChu.LoadLopHocPhanUserControl();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Quay về (Tùy chọn: Nếu muốn thêm xong quay về luôn thì bỏ comment dòng dưới)
+                // BackToHome();
             }
         }
 
         private void btnHuy_Click_1(object sender, EventArgs e)
         {
-            TrangChu trangChu = new TrangChu();
-            trangChu.Show();
-            trangChu.LoadLopHocPhanUserControl();
+            BackToHome();
+        }
+
+        private void BackToHome()
+        {
+            if (this.Parent != null)
+            {
+                TrangChu trangChu = new TrangChu();
+                trangChu.Show();
+                trangChu.LoadLopHocPhanUserControl();
+                
+                this.FindForm()?.Hide();
+            }
         }
     }
 }

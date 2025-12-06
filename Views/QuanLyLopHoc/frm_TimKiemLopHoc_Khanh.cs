@@ -1,75 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nhom2_QuanLySinhVien.Services;
 
 namespace Nhom2_QuanLySinhVien
 {
     public partial class frm_TimKiemLopHoc_Khanh : Form
     {
+        // 1. Xóa constructor cũ có tham số DataTable
         public frm_TimKiemLopHoc_Khanh()
         {
             InitializeComponent();
         }
-        private DataTable danhSachLop;
 
-        public frm_TimKiemLopHoc_Khanh(DataTable dt)
-        {
-            InitializeComponent();
-            danhSachLop = dt;
-        }
-        private void HienThiDanhSachLop()
-        {
-            dgv_TimKiem_Khanh.DataSource = danhSachLop;
-        }
         private void frm_TimKiem_Khanh_Load(object sender, EventArgs e)
         {
-            LoadDanhSachKhoa();
-            HienThiDanhSachLop(); 
+            // Load danh sách Khoa để chọn tìm kiếm
+            LopHocService.Instance.HienThiKhoaLenComboBox(cb_Khoa_Khanh);
+
+            // Load toàn bộ danh sách ban đầu
+            dgv_TimKiem_Khanh.DataSource = LopHocService.Instance.LayTatCaLopHoc();
         }
-        private void LoadDanhSachKhoa()
-        {
-            try
-            {
-                cb_Khoa_Khanh.DataSource = TruyVan.LayDuLieuKhoa();
-                cb_Khoa_Khanh.DisplayMember = "TenKhoa";
-                cb_Khoa_Khanh.ValueMember = "MaKhoa";
-                cb_Khoa_Khanh.SelectedIndex = -1;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tải danh sách khoa: " + ex.Message, "Lỗi");
-            }
-        }
+
         private void btn_TimKiem_Khanh_Click(object sender, EventArgs e)
         {
             string tuKhoa = tb_TuKhoa_Khanh.Text.Trim();
-            string maKhoa = cb_Khoa_Khanh.SelectedValue?.ToString();
+            string maKhoa = cb_Khoa_Khanh.Text;
 
-            if (string.IsNullOrEmpty(tuKhoa) && string.IsNullOrEmpty(maKhoa))
-            {
-                MessageBox.Show("Không tìm thấy lớp học phù hợp với từ khóa và khoa đã chọn.", "Thông báo");
-                return;
-            }
+            // Gọi Service tìm kiếm
+            var ketQua = LopHocService.Instance.TimKiemLop(tuKhoa, maKhoa);
 
-            try
-            {
-                DataTable dt = TruyVan.TimKiemLop(tuKhoa, maKhoa);
-                dgv_TimKiem_Khanh.DataSource = dt;
+            dgv_TimKiem_Khanh.DataSource = ketQua;
 
-                if (dt.Rows.Count == 0)
-                {
-                    MessageBox.Show("Không tìm thấy lớp học phù hợp với từ khóa và khoa đã chọn.", "Thông báo");
-                }
-            }
-            catch (Exception ex)
+            // Kiểm tra kết quả (List thì dùng Count)
+            // Ép kiểu về List dynamic hoặc kiểm tra null
+            if (dgv_TimKiem_Khanh.RowCount == 0)
             {
-                MessageBox.Show("Lỗi khi tìm kiếm lớp học: " + ex.Message, "Lỗi");
+                MessageBox.Show("Không tìm thấy lớp học phù hợp.", "Thông báo");
             }
         }
 

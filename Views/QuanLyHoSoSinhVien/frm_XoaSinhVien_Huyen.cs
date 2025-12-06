@@ -13,35 +13,35 @@ namespace Nhom2_QuanLySinhVien
 {
     public partial class frm_XoaSinhVien_Huyen : Form
     {
-        private readonly SinhVien svXoa;
+        private readonly SinhVienService svXoa;
         private string HoDem, Ten, NgaySinh, GioiTinh, QueQuan, MaLop,SoDT;
         int no0Column = 0;
         
         public frm_XoaSinhVien_Huyen()
         {
             InitializeComponent();
-            svXoa = SinhVien.SV;
+            svXoa = SinhVienService.SV;
             
-            svXoa.ShowOnComboBox(cb_MaLop, no0Column);
-            svXoa.ShowOnComboBox1(cb_TenDN, no0Column);
+            svXoa.ShowOnComboBox(cb_MaLop);
+            svXoa.ShowOnComboBox1(cb_TenDN);
 
-            txt_MaSV.Text = svXoa.MaSV1;
-            txt_HoDem.Text = svXoa.HoDem1;
-            txt_Ten.Text = svXoa.Ten1;
-            dateNgaySinh.Text = svXoa.NgaySinh1;
-            txt_QueQuan.Text = svXoa.QueQuan1;
-            txt_SoDT.Text = svXoa.SoDT1.ToString();
-            cb_MaLop.SelectedItem = svXoa.MaLop1;
-            cb_TenDN.SelectedItem = svXoa.TenDN1;
+            txt_MaSV.Text = SinhVienService.SinhVienDangChon.MaSv;
+            txt_HoDem.Text = SinhVienService.SinhVienDangChon.HoDem;
+            txt_Ten.Text = SinhVienService.SinhVienDangChon.Ten;
+            dateNgaySinh.Text = SinhVienService.SinhVienDangChon.NgaySinh.ToString();
+            txt_QueQuan.Text = SinhVienService.SinhVienDangChon.QueQuan;
+            txt_SoDT.Text = SinhVienService.SinhVienDangChon.SoDt;
+            cb_MaLop.SelectedItem = SinhVienService.SinhVienDangChon.MaLop;
+            cb_TenDN.SelectedItem = SinhVienService.SinhVienDangChon.TenDn;
 
-            HoDem = svXoa.HoDem1;
-            Ten = svXoa.Ten1;
-            NgaySinh = svXoa.NgaySinh1;
-            QueQuan = svXoa.QueQuan1;
-            SoDT = svXoa.SoDT1;
-            MaLop = svXoa.MaLop1;
+            HoDem = SinhVienService.SinhVienDangChon.HoDem;
+            Ten = SinhVienService.SinhVienDangChon.Ten;
+            NgaySinh = SinhVienService.SinhVienDangChon.NgaySinh.ToString();
+            QueQuan = SinhVienService.SinhVienDangChon.QueQuan;
+            SoDT = SinhVienService.SinhVienDangChon.SoDt;
+            MaLop = SinhVienService.SinhVienDangChon.MaLop;
 
-            if (svXoa.GioiTinh1 == "Nam")
+            if (SinhVienService.SinhVienDangChon.GioiTinh == "Nam")
             {
                 rb_Nam.Checked = true;
             }

@@ -8,17 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nhom2_QuanLySinhVien.QuanLyMonHoc;
-using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 
 namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 {
 	public partial class frm_QuanLyMonHoc_Bac : Form
 	{
-		private readonly MonHoc monhoc;
+		private readonly MonHocService monhoc;
 		public frm_QuanLyMonHoc_Bac()
 		{
 			InitializeComponent();
-			monhoc = MonHoc.Subject;
+			monhoc = MonHocService.Subject;
 			PhanQuyen();
 
 		}
@@ -38,7 +38,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 		{
 			cbo_SapxepMonHoc_Bac.Text = "---Chọn thông tin---";
 			dgv_DSMonHoc_Bac.DataSource = monhoc.SelectAllSubject();
-			lb_somonhoc.Text = "Số môn học : " + monhoc.SelectAllSubject().Rows.Count;
+			lb_somonhoc.Text = "Số môn học : " + dgv_DSMonHoc_Bac.RowCount;
 		}
 
 		private void btn_addNew_Bac_Click(object sender, EventArgs e)
@@ -46,7 +46,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 			frm_ThemMoiMonHoc_Bac f = new frm_ThemMoiMonHoc_Bac();
 			f.ShowDialog();
 			dgv_DSMonHoc_Bac.DataSource = monhoc.SelectAllSubject();
-			lb_somonhoc.Text = "Số môn học : " + monhoc.SelectAllSubject().Rows.Count;
+			lb_somonhoc.Text = "Số môn học : " + dgv_DSMonHoc_Bac.RowCount;
 
 		}
 
@@ -56,7 +56,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 			frm_XoaMonHoc_Bac f = new frm_XoaMonHoc_Bac();
 			f.ShowDialog();
 			dgv_DSMonHoc_Bac.DataSource = monhoc.SelectAllSubject();
-			lb_somonhoc.Text = "Số môn học : " + monhoc.SelectAllSubject().Rows.Count;
+			lb_somonhoc.Text = "Số môn học : " + dgv_DSMonHoc_Bac.RowCount;
 
 		}
 
@@ -66,7 +66,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 			frm_SuaMonHoc_Bac f = new frm_SuaMonHoc_Bac();
 			f.ShowDialog();
 			dgv_DSMonHoc_Bac.DataSource = monhoc.SelectAllSubject();
-			lb_somonhoc.Text = "Số môn học : " + monhoc.SelectAllSubject().Rows.Count;
+			lb_somonhoc.Text = "Số môn học : " + dgv_DSMonHoc_Bac.RowCount;
 		}
 
 
@@ -90,7 +90,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 		private void txt_TimKiem_Bac_TextChanged_1(object sender, EventArgs e)
 		{
 			dgv_DSMonHoc_Bac.DataSource = monhoc.SeachingAllByAll(txt_TimKiem_Bac.Text);
-			lb_somonhoc.Text = "Số môn học : " + monhoc.SeachingAllByAll(txt_TimKiem_Bac.Text).Rows.Count;
+			lb_somonhoc.Text = "Số môn học : " + dgv_DSMonHoc_Bac.RowCount;
 		}
 	}
 }

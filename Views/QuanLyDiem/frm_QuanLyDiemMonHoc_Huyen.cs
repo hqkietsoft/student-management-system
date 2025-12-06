@@ -1,4 +1,4 @@
-﻿using QuanLySinhVien_Nhom2.Model;
+﻿using Nhom2_QuanLySinhVien.Services;
 using QuanLySinhVien_Nhom2.QuanLyDiem;
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,11 @@ namespace Nhom2_QuanLySinhVien.QuanLyDiem
 {
 	public partial class frm_QuanLyDiemMonHoc_Huyen : Form
 	{
-		Diem diem;
+		DiemService diem;
 		public frm_QuanLyDiemMonHoc_Huyen()
 		{
 			InitializeComponent();
-			diem = Diem.DIEM;
+			diem = DiemService.DIEM;
 			diem.HienThiLenDataGridView(dgv_ThongTinDiem_Huyen);
             PhanQuyen();
 		}

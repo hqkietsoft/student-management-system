@@ -39,11 +39,6 @@ namespace Nhom2_QuanLySinhVien
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.guna2ControlBox1 = new Guna.UI2.WinForms.Guna2ControlBox();
             this.guna2DataGridView1 = new Guna.UI2.WinForms.Guna2DataGridView();
-            this.MaLop = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MaMH = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MaGV = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.HocKy = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Nam = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -58,7 +53,12 @@ namespace Nhom2_QuanLySinhVien
             this.panel4 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.guna2TextBox1 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.btnThem = new Guna.UI2.WinForms.Guna2Button();
+            this.MaLop = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MaMH = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MaGV = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.HocKy = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Nam = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            btnThem = new Guna.UI2.WinForms.Guna2Button();
             ((System.ComponentModel.ISupportInitialize)(this.guna2DataGridView1)).BeginInit();
             this.guna2Panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -68,34 +68,34 @@ namespace Nhom2_QuanLySinhVien
             // 
             // btnThem
             // 
-            this.btnThem.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnThem.Animated = true;
-            this.btnThem.BackColor = System.Drawing.Color.Transparent;
-            this.btnThem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(37)))), ((int)(((byte)(41)))));
-            this.btnThem.BorderRadius = 8;
-            this.btnThem.BorderThickness = 1;
-            this.btnThem.ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton;
-            this.btnThem.CheckedState.BorderColor = System.Drawing.Color.White;
-            this.btnThem.CheckedState.FillColor = System.Drawing.Color.White;
-            this.btnThem.CheckedState.ForeColor = System.Drawing.Color.Black;
-            this.btnThem.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
-            this.btnThem.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
-            this.btnThem.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
-            this.btnThem.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnThem.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(32)))), ((int)(((byte)(36)))));
-            this.btnThem.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnThem.ForeColor = System.Drawing.Color.White;
-            this.btnThem.HoverState.BorderColor = System.Drawing.Color.White;
-            this.btnThem.HoverState.FillColor = System.Drawing.Color.White;
-            this.btnThem.HoverState.ForeColor = System.Drawing.Color.Black;
-            this.btnThem.Location = new System.Drawing.Point(149, -3);
-            this.btnThem.Name = "btnThem";
-            this.btnThem.PressedColor = System.Drawing.Color.Transparent;
-            this.btnThem.Size = new System.Drawing.Size(188, 59);
-            this.btnThem.TabIndex = 10;
-            this.btnThem.Text = "Thêm";
-            this.btnThem.UseTransparentBackground = true;
-            this.btnThem.Click += new System.EventHandler(this.guna2Button1_Click);
+            btnThem.Anchor = System.Windows.Forms.AnchorStyles.None;
+            btnThem.Animated = true;
+            btnThem.BackColor = System.Drawing.Color.Transparent;
+            btnThem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(37)))), ((int)(((byte)(41)))));
+            btnThem.BorderRadius = 8;
+            btnThem.BorderThickness = 1;
+            btnThem.ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton;
+            btnThem.CheckedState.BorderColor = System.Drawing.Color.White;
+            btnThem.CheckedState.FillColor = System.Drawing.Color.White;
+            btnThem.CheckedState.ForeColor = System.Drawing.Color.Black;
+            btnThem.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            btnThem.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            btnThem.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            btnThem.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            btnThem.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(32)))), ((int)(((byte)(36)))));
+            btnThem.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            btnThem.ForeColor = System.Drawing.Color.White;
+            btnThem.HoverState.BorderColor = System.Drawing.Color.White;
+            btnThem.HoverState.FillColor = System.Drawing.Color.White;
+            btnThem.HoverState.ForeColor = System.Drawing.Color.Black;
+            btnThem.Location = new System.Drawing.Point(149, -3);
+            btnThem.Name = "btnThem";
+            btnThem.PressedColor = System.Drawing.Color.Transparent;
+            btnThem.Size = new System.Drawing.Size(188, 59);
+            btnThem.TabIndex = 10;
+            btnThem.Text = "Thêm";
+            btnThem.UseTransparentBackground = true;
+            btnThem.Click += new System.EventHandler(this.guna2Button1_Click);
             // 
             // guna2ControlBox1
             // 
@@ -181,36 +181,6 @@ namespace Nhom2_QuanLySinhVien
             this.guna2DataGridView1.ThemeStyle.RowsStyle.SelectionForeColor = System.Drawing.Color.White;
             this.guna2DataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.guna2DataGridView1_CellContentClick);
             this.guna2DataGridView1.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.guna2DataGridView1_CellContentDoubleClick);
-            // 
-            // MaLop
-            // 
-            this.MaLop.HeaderText = "Mã Lớp";
-            this.MaLop.Name = "MaLop";
-            this.MaLop.ReadOnly = true;
-            // 
-            // MaMH
-            // 
-            this.MaMH.HeaderText = "Mã Môn Học";
-            this.MaMH.Name = "MaMH";
-            this.MaMH.ReadOnly = true;
-            // 
-            // MaGV
-            // 
-            this.MaGV.HeaderText = "Mã Giáo Viên";
-            this.MaGV.Name = "MaGV";
-            this.MaGV.ReadOnly = true;
-            // 
-            // HocKy
-            // 
-            this.HocKy.HeaderText = "Học Kỳ";
-            this.HocKy.Name = "HocKy";
-            this.HocKy.ReadOnly = true;
-            // 
-            // Nam
-            // 
-            this.Nam.HeaderText = "Năm";
-            this.Nam.Name = "Nam";
-            this.Nam.ReadOnly = true;
             // 
             // label2
             // 
@@ -306,7 +276,7 @@ namespace Nhom2_QuanLySinhVien
             this.panel3.BackColor = System.Drawing.Color.Black;
             this.panel3.Controls.Add(this.btnXoa);
             this.panel3.Controls.Add(this.guna2Button4);
-            this.panel3.Controls.Add(this.btnThem);
+            this.panel3.Controls.Add(btnThem);
             this.panel3.Location = new System.Drawing.Point(0, 636);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(946, 79);
@@ -422,6 +392,41 @@ namespace Nhom2_QuanLySinhVien
             this.guna2TextBox1.TabIndex = 0;
             this.guna2TextBox1.TextChanged += new System.EventHandler(this.guna2TextBox1_TextChanged);
             // 
+            // MaLop
+            // 
+            this.MaLop.DataPropertyName = "MaLop";
+            this.MaLop.HeaderText = "Mã Lớp";
+            this.MaLop.Name = "MaLop";
+            this.MaLop.ReadOnly = true;
+            // 
+            // MaMH
+            // 
+            this.MaMH.DataPropertyName = "MaMH";
+            this.MaMH.HeaderText = "Mã Môn Học";
+            this.MaMH.Name = "MaMH";
+            this.MaMH.ReadOnly = true;
+            // 
+            // MaGV
+            // 
+            this.MaGV.DataPropertyName = "MaGV";
+            this.MaGV.HeaderText = "Mã Giáo Viên";
+            this.MaGV.Name = "MaGV";
+            this.MaGV.ReadOnly = true;
+            // 
+            // HocKy
+            // 
+            this.HocKy.DataPropertyName = "HocKy";
+            this.HocKy.HeaderText = "Học Kỳ";
+            this.HocKy.Name = "HocKy";
+            this.HocKy.ReadOnly = true;
+            // 
+            // Nam
+            // 
+            this.Nam.DataPropertyName = "Nam";
+            this.Nam.HeaderText = "Năm";
+            this.Nam.Name = "Nam";
+            this.Nam.ReadOnly = true;
+            // 
             // LopHocPhan
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -450,11 +455,6 @@ namespace Nhom2_QuanLySinhVien
 
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox1;
         private Guna.UI2.WinForms.Guna2DataGridView guna2DataGridView1;
-        private DataGridViewTextBoxColumn MaLop;
-        private DataGridViewTextBoxColumn MaMH;
-        private DataGridViewTextBoxColumn MaGV;
-        private DataGridViewTextBoxColumn HocKy;
-        private DataGridViewTextBoxColumn Nam;
         private Label label3;
         private Label label2;
         private Label label4;
@@ -468,7 +468,12 @@ namespace Nhom2_QuanLySinhVien
         private Guna.UI2.WinForms.Guna2TextBox guna2TextBox1;
         private Label label1;
         private Guna.UI2.WinForms.Guna2Button guna2Button4;
-        private Guna.UI2.WinForms.Guna2Button btnThem;
         private Guna.UI2.WinForms.Guna2Button btnXoa;
+        private Guna.UI2.WinForms.Guna2Button btnThem;
+        private DataGridViewTextBoxColumn MaLop;
+        private DataGridViewTextBoxColumn MaMH;
+        private DataGridViewTextBoxColumn MaGV;
+        private DataGridViewTextBoxColumn HocKy;
+        private DataGridViewTextBoxColumn Nam;
     }
 }

@@ -1,47 +1,129 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Guna.UI2.WinForms;
-using Microsoft.Data.SqlClient;
-using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 
 namespace Nhom2_QuanLySinhVien
 {
     public partial class LopHocPhan : UserControl
     {
-        private ConnectionData connectDB;
         public LopHocPhan()
         {
             InitializeComponent();
-            string conString = "Data Source=(local);Initial Catalog=QUANLYSINHVIEN;Integrated Security=True;Encrypt=False;Trust Server Certificate=True";
-            connectDB = new ConnectionData(conString);
         }
 
-        #region LoadData
+        private void LopHocPhan_Load_1(object sender, EventArgs e)
+        {
+            LoadData();
+            PhanQuyen();
+        }
+
+        // --- HÀM LOAD DỮ LIỆU (Dùng EF Core) ---
         private void LoadData()
         {
-            string query = "SELECT * FROM LopHocPhan";
-            DataTable dataTable = connectDB.ExecuteQuery(query);
-
+            // Tắt tự sinh cột để dùng cột bạn đã thiết kế sẵn
             guna2DataGridView1.AutoGenerateColumns = false;
-            guna2DataGridView1.Rows.Clear();
-            foreach (DataRow row in dataTable.Rows)
+
+            // Lấy dữ liệu từ Service gán vào bảng
+            guna2DataGridView1.DataSource = LopHocPhanService.Instance.LayTatCaLopHocPhan();
+
+            MaLopCount();
+        }
+
+        // --- PHÂN QUYỀN ---
+        public void PhanQuyen()
+        {
+            if (Program.loaiND == 3 || Program.loaiND == 4)
             {
-                int rowIndex = guna2DataGridView1.Rows.Add();
-                guna2DataGridView1.Rows[rowIndex].Cells["MaLop"].Value = row["MaLop"];
-                guna2DataGridView1.Rows[rowIndex].Cells["MaMH"].Value = row["MaMH"];
-                guna2DataGridView1.Rows[rowIndex].Cells["MaGV"].Value = row["MaGV"];
-                guna2DataGridView1.Rows[rowIndex].Cells["HocKy"].Value = row["HocKy"];
-                guna2DataGridView1.Rows[rowIndex].Cells["Nam"].Value = row["Nam"];
+                btnXoa.Enabled = false;
+                guna2Button4.Enabled = false; // Nút Sửa
+                btnThem.Enabled = false;
             }
         }
-        #endregion 
+
+        // --- ĐẾM SỐ LƯỢNG ---
+        private void MaLopCount()
+        {
+            // Đếm trực tiếp từ số dòng của bảng (Nhanh gọn)
+            label3.Text = $"{guna2DataGridView1.RowCount}";
+        }
+
+        // --- TÌM KIẾM ---
+        private void guna2TextBox1_TextChanged(object sender, EventArgs e)
+        {
+            string keyword = guna2TextBox1.Text.Trim();
+            if (string.IsNullOrEmpty(keyword))
+            {
+                LoadData();
+            }
+            else
+            {
+                // Gọi hàm tìm kiếm từ Service
+                guna2DataGridView1.DataSource = LopHocPhanService.Instance.TimKiemLopHocPhan(keyword);
+                MaLopCount();
+            }
+        }
+
+        // --- NÚT XÓA ---
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            if (guna2DataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn một dòng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Lấy Mã lớp từ dòng đang chọn
+            string maLop = guna2DataGridView1.SelectedRows[0].Cells["MaLop"].Value.ToString();
+
+            if (MessageBox.Show($"Bạn có chắc chắn muốn xóa lớp học phần: {maLop}?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                // Gọi Service xóa
+                LopHocPhanService.Instance.Xoa(maLop);
+                LoadData(); // Load lại bảng
+            }
+        }
+
+        // --- NÚT SỬA ---
+        private void guna2Button4_Click(object sender, EventArgs e)
+        {
+            if (guna2DataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn một dòng để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                DataGridViewRow row = guna2DataGridView1.SelectedRows[0];
+
+                // Mở UserControl Sửa (Giữ nguyên logic cũ của bạn)
+                SuaLopHocPhan sua = new SuaLopHocPhan(
+                    row.Cells["MaLop"].Value.ToString(),
+                    row.Cells["MaMH"].Value.ToString(),
+                    row.Cells["MaGV"].Value.ToString(),
+                    row.Cells["HocKy"].Value.ToString(),
+                    row.Cells["Nam"].Value.ToString()
+                );
+                addUserControl(sua);
+            }
+        }
+
+        // --- NÚT THÊM ---
+        private void guna2Button1_Click(object sender, EventArgs e)
+        {
+            ThemLopHocPhan them = new ThemLopHocPhan();
+            addUserControl(them);
+        }
+
+        // Hàm hỗ trợ chuyển UserControl (Giữ nguyên)
+        private void addUserControl(UserControl function)
+        {
+            function.Dock = DockStyle.Fill;
+            panel4.Controls.Clear();
+            panel4.Controls.Add(function);
+            function.BringToFront();
+        }
+
         private void guna2ControlBox1_Click(object sender, EventArgs e)
         {
             if (this.Parent != null)
@@ -51,30 +133,17 @@ namespace Nhom2_QuanLySinhVien
             }
         }
 
-        private void LopHocPhan_Load(object sender, EventArgs e)
+        // Xử lý Double Click để sửa (Giữ nguyên logic cũ)
+        private void guna2DataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            
-        }
-
-        public void PhanQuyen()
-        {
-            if (Program.loaiND == 3 || Program.loaiND == 4)
+            if (e.RowIndex >= 0)
             {
-                btnXoa.Enabled = false;
-                guna2Button4.Enabled = false;
-                btnThem.Enabled = false;
+                // Gọi lại hàm nút sửa cho gọn code
+                guna2Button4_Click(sender, e);
             }
         }
 
-        #region Đếm mã lớp
-        private void MaLopCount()
-        {
-            int count = guna2DataGridView1.Rows.Cast<DataGridViewRow>()
-                          .Count(row => !row.IsNewRow && row.Cells["MaLop"].Value != null && row.Cells["MaLop"].Value.ToString() != "");
-
-            label3.Text = $"{count}";
-        }
-        #endregion
+        // Xử lý Resize (Giữ nguyên code giao diện của bạn)
         private void panel3_Resize(object sender, EventArgs e)
         {
             int buttonCount = panel3.Controls.OfType<Button>().Count();
@@ -94,175 +163,16 @@ namespace Nhom2_QuanLySinhVien
             {
                 btn.SetBounds(x, y, buttonWidth, buttonHeight);
                 x += buttonWidth + space;
-
             }
         }
 
-        private void addUserControl(UserControl function)
-        {
-            function.Dock = DockStyle.Fill;
-            panel4.Controls.Clear();
-            panel4.Controls.Add(function);
-            function.BringToFront();
-        }
-
-        private void guna2Button1_Click(object sender, EventArgs e)
-        {
-            ThemLopHocPhan them = new ThemLopHocPhan();
-            addUserControl(them);
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void guna2TextBox1_TextChanged(object sender, EventArgs e)
-        {
-            string keyword = guna2TextBox1.Text.Trim();
-            if (string.IsNullOrEmpty(keyword))
-            {
-                LoadData();
-                MaLopCount();
-                return;
-            }
-
-            string query = "SELECT * FROM LopHocPhan WHERE MaLop LIKE @keyword OR MaMH LIKE @keyword OR MaGV LIKE @keyword OR HocKy LIKE @keyword OR Nam LIKE @keyword";
-
-            SqlParameter param = new SqlParameter("@keyword", "%" + keyword + "%");
-
-            DataTable dataTable = connectDB.ExecuteQuery(query, new SqlParameter[] { param });
-
-            guna2DataGridView1.Rows.Clear();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                int rowIndex = guna2DataGridView1.Rows.Add();
-                guna2DataGridView1.Rows[rowIndex].Cells["MaLop"].Value = row["MaLop"];
-                guna2DataGridView1.Rows[rowIndex].Cells["MaMH"].Value = row["MaMH"];
-                guna2DataGridView1.Rows[rowIndex].Cells["MaGV"].Value = row["MaGV"];
-                guna2DataGridView1.Rows[rowIndex].Cells["HocKy"].Value = row["HocKy"];
-                guna2DataGridView1.Rows[rowIndex].Cells["Nam"].Value = row["Nam"];
-            }
-            MaLopCount();
-        }
-
-        private void guna2Button1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void guna2Button4_Click(object sender, EventArgs e)
-        {
-            if (guna2DataGridView1.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Vui lòng chọn một dòng để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            else
-            {
-                DataGridViewRow row = guna2DataGridView1.SelectedRows[0];
-                SuaLopHocPhan sua = new SuaLopHocPhan(
-                    row.Cells["MaLop"].Value.ToString(),
-                    row.Cells["MaMH"].Value.ToString(),
-                    row.Cells["MaGV"].Value.ToString(),
-                    row.Cells["HocKy"].Value.ToString(),
-                    row.Cells["Nam"].Value.ToString()
-                );
-                addUserControl(sua);
-            }
-        }
-
-        private void guna2DataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                if (guna2Button4 != null)
-                {
-                    guna2Button4.Checked = true;
-                    if (guna2Button4.Checked)
-                    {
-                        DataGridViewRow row = guna2DataGridView1.Rows[e.RowIndex];
-
-                        SuaLopHocPhan sua = new SuaLopHocPhan(
-                            row.Cells["MaLop"].Value.ToString(),
-                            row.Cells["MaMH"].Value.ToString(),
-                            row.Cells["MaGV"].Value.ToString(),
-                            row.Cells["HocKy"].Value.ToString(),
-                            row.Cells["Nam"].Value.ToString()
-                        );
-
-                        addUserControl(sua);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Vui lòng chọn nút sửa trước khi chỉnh sửa.");
-                    }
-                }
-            }
-        }
-
-        private void btnXoa_Click(object sender, EventArgs e)
-        {
-            if (guna2DataGridView1.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Vui lòng chọn một dòng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            DataGridViewRow row = guna2DataGridView1.SelectedRows[0];
-
-            string maLop = row.Cells["MaLop"].Value.ToString();
-
-            DialogResult dialogResult = MessageBox.Show($"Bạn có chắc chắn muốn xóa lớp học phần với Mã Lớp: {maLop}?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dialogResult == DialogResult.Yes)
-            {
-                try
-                {
-                    string query = "DELETE FROM LopHocPhan WHERE MaLop = @MaLop";
-
-                    List<SqlParameter> parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@MaLop", maLop)
-            };
-
-                    connectDB.ExecuteNonQuery(query, parameters);
-
-                    MessageBox.Show("Xóa lớp học phần thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    LoadData();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            MaLopCount();
-        }
-
-        private void panel4_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void guna2DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void guna2Panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void guna2Panel1_Paint_1(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void LopHocPhan_Load_1(object sender, EventArgs e)
-        {
-            LoadData();
-            MaLopCount();
-            PhanQuyen();
-        }
+        // Các event thừa
+        private void guna2Button1_CheckedChanged(object sender, EventArgs e) { }
+        private void panel4_Paint(object sender, PaintEventArgs e) { }
+        private void guna2DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void LopHocPhan_Load(object sender, EventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void guna2Panel1_Paint(object sender, PaintEventArgs e) { }
+        private void guna2Panel1_Paint_1(object sender, PaintEventArgs e) { }
     }
 }

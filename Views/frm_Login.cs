@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nhom2_QuanLySinhVien.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,11 +14,11 @@ namespace Nhom2_QuanLySinhVien
 {
     public partial class frm_Login : Form
     {
-        Login login;
+        AuthService login;
         public frm_Login()
         {
             InitializeComponent();
-            login = new Login();
+            login = new AuthService();
             label3.Visible = false;
             this.AcceptButton = btn_Login;
         }

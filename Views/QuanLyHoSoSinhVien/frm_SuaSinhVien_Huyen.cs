@@ -14,7 +14,7 @@ namespace Nhom2_QuanLySinhVien
     public partial class frm_SuaSinhVien_Huyen : Form
     {
         private string initialGioiTinh;
-        private readonly SinhVien svSua;
+        private readonly SinhVienService svSua;
         private string HoDem, Ten, NgaySinh, GioiTinh, QueQuan, MaLop,SoDT;
 
         private void btn_Huy_Click(object sender, EventArgs e)
@@ -30,10 +30,10 @@ namespace Nhom2_QuanLySinhVien
         {
             InitializeComponent();
 
-            svSua = SinhVien.SV;
+            svSua = SinhVienService.SV;
             initialGioiTinh = svSua.GioiTinh1;
-            svSua.ShowOnComboBox(cb_MaLop, 0);
-            svSua.ShowOnComboBox1(cb_TenDN, 0);
+            svSua.ShowOnComboBox(cb_MaLop);
+            svSua.ShowOnComboBox1(cb_TenDN);
 
             txt_MaSV.Text = svSua.MaSV1;
             txt_HoDem.Text = svSua.HoDem1;
