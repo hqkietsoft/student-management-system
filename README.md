@@ -18,7 +18,7 @@ Ban đầu, dự án sử dụng công nghệ cũ ADO.NET với các câu lệnh
 
 *(Vui lòng thêm ảnh chụp màn hình dự án của bạn vào thư mục images và cập nhật đường dẫn bên dưới)*
 
-| Màn hình Đăng nhập | Dashboard |
+| Màn hình Đăng nhập | Trang chủ |
 |:---:|:---:|
 | ![Login](Services/Resources/pictures/login.png) | ![Home Page](Services/Resources/pictures/homepage.png) |
 
@@ -30,9 +30,12 @@ Ban đầu, dự án sử dụng công nghệ cũ ADO.NET với các câu lệnh
 |:---:|:---:|
 | ![Student](Services/Resources/pictures/monhoc.png) | ![Grades](Services/Resources/pictures/diem.png) |
 
-| Báo Cáo Thống Kê |
-|:---:|:---:|
-| ![Student](Services/Resources/pictures/bctkpng.png) |
+<div align="center">
+  <strong>Báo Cáo Thống Kê</strong>
+  <br>
+  <br>
+  <img src="Services/Resources/pictures/bctkpng.png" alt="Báo Cáo Thống Kê" />
+</div>
 
 ## 🚀 Tính năng Chính
 
