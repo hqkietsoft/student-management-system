@@ -267,6 +267,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\BaoCaoService.cs" />
     <Compile Include="Services\LopHocPhanService.cs" />
     <Compile Include="Services\LopHocService.cs" />
     <Compile Include="Views\BaoCaoThongKe\BaoCaoThongKe.cs">
@@ -287,10 +288,8 @@
     <Compile Include="Views\frm_Login.Designer.cs">
       <DependentUpon>frm_Login.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\ConnectionData.cs" />
     <Compile Include="Services\DiemService.cs" />
     <Compile Include="Services\SinhVienService.cs" />
-    <Compile Include="Model\TruyVan.cs" />
     <Compile Include="Views\QuanLyDiem\frm_DiemQuaTrinh_Huyen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -417,7 +416,6 @@
     <Compile Include="Views\QuanLyMonHoc\frm_XoaMonHoc_Bac.Designer.cs">
       <DependentUpon>frm_XoaMonHoc_Bac.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\KetnoiModel.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\MonHocService.cs" />
     <Compile Include="Program.cs" />

@@ -353,6 +353,96 @@ namespace Nhom2_QuanLySinhVien.Services
                 return mh?.SoTc ?? 0;
             }
         }
+
+        // 1. Lấy danh sách môn học cho ComboBox
+        public object LayDuLieuMonHoc()
+        {
+            using (var db = new MyDbContext())
+            {
+                return db.MonHoc.Select(m => new
+                {
+                    MaMH = m.MaMh,
+                    TenMH = m.TenMh
+                }).ToList();
+            }
+        }
+
+        // 2. Lấy danh sách sinh viên và điểm theo môn học
+        public object LayThongTinSinhVienTheoMonHoc(string maMH)
+        {
+            using (var db = new MyDbContext())
+            {
+                // Join bảng Diem - SinhVien - MonHoc
+                var query = from d in db.Diem
+                            join sv in db.SinhVien on d.MaSv equals sv.MaSv
+                            where d.MaMh == maMH
+                            select new
+                            {
+                                MaSV = d.MaSv,
+                                HoDem = sv.HoDem,
+                                Ten = sv.Ten,
+                                DiemQuaTrinh = d.DiemQuaTrinh,
+                                DiemThi = d.DiemThi,
+                                DiemHocPhan = d.DiemHocPhan,
+                                MaMH = d.MaMh
+                            };
+                return query.ToList();
+            }
+        }
+
+        // 3. Cập nhật điểm (Dùng int? / float? để xử lý null)
+        public bool CapNhatDiem(string maSV, string maMonHoc, float? diemQT, float? diemThi, float? diemHP)
+        {
+            try
+            {
+                using (var db = new MyDbContext())
+                {
+                    var diem = db.Diem.FirstOrDefault(d => d.MaSv == maSV && d.MaMh == maMonHoc);
+                    if (diem != null)
+                    {
+                        diem.DiemQuaTrinh = diemQT;
+                        diem.DiemThi = diemThi;
+                        diem.DiemHocPhan = diemHP;
+
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi cập nhật: " + ex.Message);
+                return false;
+            }
+        }
+
+        // 4. Xóa điểm (Reset về NULL như logic cũ)
+        public bool XoaDiem(string maSV, string maMonHoc)
+        {
+            try
+            {
+                using (var db = new MyDbContext())
+                {
+                    var diem = db.Diem.FirstOrDefault(d => d.MaSv == maSV && d.MaMh == maMonHoc);
+                    if (diem != null)
+                    {
+                        // Logic cũ của bạn là set về NULL chứ không xóa dòng
+                        diem.DiemThi = null;
+                        diem.DiemHocPhan = null;
+
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xóa điểm: " + ex.Message);
+                return false;
+            }
+        }
     }
     public class DiemDTO
     {
