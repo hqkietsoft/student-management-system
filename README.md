@@ -20,7 +20,7 @@ Ban đầu, dự án sử dụng công nghệ cũ ADO.NET với các câu lệnh
 
 | Màn hình Đăng nhập | Dashboard |
 |:---:|:---:|
-| ![Login](images/login.png) | ![Dashboard](images/dashboard.png) |
+| ![Login](Services/Resources/pictures/login.png) | ![Dashboard](images/dashboard.png) |
 
 | Quản lý Sinh viên | Quản lý Điểm |
 |:---:|:---:|
