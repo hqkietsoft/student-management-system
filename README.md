@@ -20,11 +20,19 @@ Ban đầu, dự án sử dụng công nghệ cũ ADO.NET với các câu lệnh
 
 | Màn hình Đăng nhập | Dashboard |
 |:---:|:---:|
-| ![Login](Services/Resources/pictures/login.png) | ![Dashboard](images/dashboard.png) |
+| ![Login](Services/Resources/pictures/login.png) | ![Home Page](Services/Resources/pictures/homepage.png) |
 
-| Quản lý Sinh viên | Quản lý Điểm |
+| Quản lý Lớp học phần | Quản lý Sinh viên |
 |:---:|:---:|
-| ![Student](images/student.png) | ![Grades](images/grades.png) |
+| ![Student](Services/Resources/pictures/lophocphan.png) | ![Grades](Services/Resources/pictures/hososinhvien.png) |
+
+| Quản lý Môn học | Quản lý Điểm |
+|:---:|:---:|
+| ![Student](Services/Resources/pictures/monhoc.png) | ![Grades](Services/Resources/pictures/diem.png) |
+
+| Báo Cáo Thống Kê |
+|:---:|:---:|
+| ![Student](Services/Resources/pictures/bctk.png) |
 
 ## 🚀 Tính năng Chính
 
