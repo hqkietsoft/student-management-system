@@ -1,4 +1,5 @@
 ﻿using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +14,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 {
 	public partial class frm_SuaMonHoc_Bac : Form
 	{
-		private readonly MonHoc monhoc;
+		private readonly MonHocService monhoc;
 		private string id, name;
 		private int sotc;
 		private int no0Column = 0, no1Column = 1, no2Column = 2;
@@ -21,7 +22,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 		public frm_SuaMonHoc_Bac()
 		{
 			InitializeComponent();
-			monhoc = MonHoc.Subject;
+			monhoc = MonHocService.Subject;
 			id = monhoc.MaMH;
 			name = monhoc.TenMH;
 			sotc = monhoc.SoTC;

@@ -170,6 +170,7 @@
             this.dgv_QuanLyLopHoc_Khanh.RowTemplate.Height = 28;
             this.dgv_QuanLyLopHoc_Khanh.Size = new System.Drawing.Size(900, 438);
             this.dgv_QuanLyLopHoc_Khanh.TabIndex = 7;
+            this.dgv_QuanLyLopHoc_Khanh.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_QuanLyLopHoc_Khanh_CellContentClick);
             // 
             // Column1
             // 

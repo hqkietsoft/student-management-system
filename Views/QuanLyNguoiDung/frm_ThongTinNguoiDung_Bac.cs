@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 namespace Nhom2_QuanLySinhVien.QuanLyNguoiDung
 {
 	public partial class frm_ThongTinNguoiDung_Bac : Form
 	{
-		private readonly Login nguoidung;
+		private readonly AuthService nguoidung;
 		public frm_ThongTinNguoiDung_Bac()
 		{
 			InitializeComponent();
-			nguoidung = Login.NguoiDung;
+			nguoidung = AuthService.NguoiDung;
 			Disabled();
 			nguoidung.UserInfo(Program.loaiND,txt_TenDN_Bac,txt_MatKhau_Bac, txt_LoaiND_Bac);
 		}

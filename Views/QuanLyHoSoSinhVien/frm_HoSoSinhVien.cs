@@ -14,12 +14,12 @@ namespace Nhom2_QuanLySinhVien
 {
     public partial class frm_HoSoSinhVien : Form
     {
-        SinhVien sinhvien;
+        SinhVienService sinhvien;
 
         public frm_HoSoSinhVien()
         {
             InitializeComponent();
-            sinhvien = SinhVien.SV;
+            sinhvien = SinhVienService.SV;
             sinhvien.Show_All(dgv_HoSoSinhVien);
             PhanQuyenSinhVien();
         }
@@ -57,17 +57,28 @@ namespace Nhom2_QuanLySinhVien
         }
         private void dgv_HoSoSinhVien_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            if (e.RowIndex >= 0)
             {
-                sinhvien.MaSV1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[0].Value.ToString();
-                sinhvien.HoDem1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[1].Value.ToString();
-                sinhvien.Ten1= dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[2].Value.ToString();
-                sinhvien.NgaySinh1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[3].Value.ToString();
-                sinhvien.GioiTinh1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[4].Value.ToString();
-                sinhvien.QueQuan1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[5].Value.ToString();
-                sinhvien.SoDT1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[6].Value.ToString();
-                sinhvien.MaLop1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[7].Value.ToString();
-                sinhvien.TenDN1 = dgv_HoSoSinhVien.Rows[e.RowIndex].Cells[8].Value.ToString();
+                // 1. Lấy dòng hiện tại
+                DataGridViewRow row = dgv_HoSoSinhVien.Rows[e.RowIndex];
+
+                // 2. Đổ dữ liệu vào kho tạm (SinhVienDangChon)
+                SinhVienService.SinhVienDangChon.MaSv = row.Cells["MaSV"].Value.ToString();
+                SinhVienService.SinhVienDangChon.HoDem = row.Cells["HoDem"].Value.ToString();
+                SinhVienService.SinhVienDangChon.Ten = row.Cells["Ten"].Value.ToString();
+
+                // Xử lý ngày sinh an toàn (tránh lỗi nếu ô rỗng)
+                DateTime dt;
+                if (DateTime.TryParse(row.Cells["NgaySinh"].Value?.ToString(), out dt))
+                {
+                    SinhVienService.SinhVienDangChon.NgaySinh = dt;
+                }
+
+                SinhVienService.SinhVienDangChon.GioiTinh = row.Cells["GioiTinh"].Value.ToString();
+                SinhVienService.SinhVienDangChon.QueQuan = row.Cells["QueQuan"].Value.ToString();
+                SinhVienService.SinhVienDangChon.SoDt = row.Cells["SoDT"].Value.ToString();
+                SinhVienService.SinhVienDangChon.MaLop = row.Cells["MaLop"].Value.ToString();
+                SinhVienService.SinhVienDangChon.TenDn = row.Cells["TenDN"].Value.ToString();
             }
         }
 
@@ -93,7 +104,7 @@ namespace Nhom2_QuanLySinhVien
 
         private void btn_Xoa_Click(object sender, EventArgs e)
         {
-			if (sinhvien.MaLop1 == null)
+			if (SinhVienService.SinhVienDangChon.MaLop == null)
 			{
 				MessageBox.Show("Chưa chọn sinh viên để sửa dữ liệu", "Sửa dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return;

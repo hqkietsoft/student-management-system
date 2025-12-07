@@ -1,4 +1,4 @@
-﻿using QuanLySinhVien_Nhom2.Model;
+﻿using Nhom2_QuanLySinhVien.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,7 +42,7 @@ namespace Nhom2_QuanLySinhVien.QuanLyDiem
                 float diemQuaTrinh = (diemChuyenCan * soTinChi + diemHS1 + (diemHS2ThuNhat * 2) + (diemHS2ThuHai * 2)) / (soTinChi + 5);
 
                 // Gọi phương thức lưu điểm vào cơ sở dữ liệu
-                Diem.DIEM.UpdateDiemQuaTrinh(maSV, maMH, diemChuyenCan, diemHS1, diemHS2ThuNhat, diemHS2ThuHai, diemQuaTrinh);
+                DiemService.DIEM.UpdateDiemQuaTrinh(maSV, maMH, diemChuyenCan, diemHS1, diemHS2ThuNhat, diemHS2ThuHai, diemQuaTrinh);
 
                 // Hiển thị kết quả tính toán
                 MessageBox.Show("Điểm quá trình: " + diemQuaTrinh.ToString("0.00"));

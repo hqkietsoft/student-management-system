@@ -9,15 +9,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 {
 	public partial class frm_ThemMoiMonHoc_Bac : Form
 	{
-		private readonly MonHoc monhoc;
+		private readonly MonHocService monhoc;
 		public frm_ThemMoiMonHoc_Bac()
 		{
 			InitializeComponent();
-			monhoc = MonHoc.Subject;
+			monhoc = MonHocService.Subject;
 		}
 
 		

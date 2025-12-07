@@ -262,5 +262,10 @@ namespace Nhom2_QuanLySinhVien
                 Application.Restart();
             }
 		}
-	}
+
+        private void guna2PictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

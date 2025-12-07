@@ -1,4 +1,5 @@
 ﻿using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,14 +13,14 @@ namespace Nhom2_QuanLySinhVien.QuanLyMonHoc
 {
 	public partial class frm_XoaMonHoc_Bac : Form
 	{
-		private readonly MonHoc monhoc; 
+		private readonly MonHocService monhoc; 
 		int no0Column = 0;
 		int no1Column = 1;
 		int no2Column = 2;
 		public frm_XoaMonHoc_Bac()
 		{
 			InitializeComponent();
-			monhoc = MonHoc.Subject;
+			monhoc = MonHocService.Subject;
 			monhoc.ShowOnComboBox(cbo_MaMH_Bac, no0Column);
 			monhoc.ShowOnComboBox(cbo_TenMH_Bac, no1Column);
 			showOnControls();

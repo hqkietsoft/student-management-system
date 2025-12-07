@@ -13,15 +13,15 @@ namespace Nhom2_QuanLySinhVien
 {
     public partial class frm_ThemSinhVien_Huyen : Form
     {
-        private readonly SinhVien svthem;
+        private readonly SinhVienService svthem;
         public frm_ThemSinhVien_Huyen()
         {
 
             InitializeComponent();
-            svthem = SinhVien.SV;
-            svthem.ShowOnComboBox(cb_MaLop, 0);
-            svthem.ShowOnComboBox1(cb_TenDN, 0);
-            SinhVien.SV.ShowOnComboBox1(cb_TenDN, 1);
+            svthem = SinhVienService.SV;
+            svthem.ShowOnComboBox(cb_MaLop);
+            svthem.ShowOnComboBox1(cb_TenDN);
+            SinhVienService.SV.ShowOnComboBox1(cb_TenDN);
 
         }
 

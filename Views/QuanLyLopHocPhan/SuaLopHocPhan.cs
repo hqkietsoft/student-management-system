@@ -1,164 +1,119 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
-using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services; // Gọi Service
 
 namespace Nhom2_QuanLySinhVien
 {
     public partial class SuaLopHocPhan : UserControl
     {
-        private ConnectionData connectDB;
-        private string originalMaLop;
+        private string originalMaLop; // Lưu mã gốc để so sánh khi sửa
+
         public SuaLopHocPhan()
         {
             InitializeComponent();
         }
+
+        // Constructor nhận dữ liệu từ Form cha truyền sang
         public SuaLopHocPhan(string maLop, string maMH, string maGV, string hocKy, string nam)
         {
             InitializeComponent();
-            string conString = "Data Source=(local);Initial Catalog=QUANLYSINHVIEN;Integrated Security=True;Encrypt=False;Trust Server Certificate=True";
-            connectDB = new ConnectionData(conString);
 
             originalMaLop = maLop;
+
+            // 1. Load dữ liệu ComboBox trước
             LoadComboBoxData();
 
-            // Hiển thị dữ liệu lên form
+            // 2. Gán dữ liệu cũ lên giao diện
             txtMaLHP.Text = maLop;
             cbbHocKy.Text = hocKy;
-            nbrNam.Value = decimal.Parse(nam);
 
-            // Set selected value cho các ComboBox
-            SetComboBoxSelectedValue(cbbMaMon, maMH);
-            SetComboBoxSelectedValue(cbbMaGV, maGV);
-        }
-
-        private void SetComboBoxSelectedValue(ComboBox comboBox, string value)
-        {
-            if (comboBox.DataSource != null)
+            // Xử lý giá trị Năm (Decimal -> Int)
+            if (decimal.TryParse(nam, out decimal namVal))
             {
-                foreach (DataRowView item in (comboBox.DataSource as DataTable).DefaultView)
-                {
-                    if (item.Row[comboBox.ValueMember].ToString() == value)
-                    {
-                        comboBox.SelectedValue = value;
-                        break;
-                    }
-                }
+                nbrNam.Value = namVal;
             }
+
+            // 3. Gán giá trị chọn cho ComboBox
+            // WinForms sẽ tự động chọn item có ValueMember khớp với giá trị này
+            cbbMaMon.SelectedValue = maMH;
+            cbbMaGV.SelectedValue = maGV;
         }
 
         private void LoadComboBoxData()
         {
             try
             {
-                // Load dữ liệu cho ComboBox Môn học
-                string queryMonHoc = "SELECT MaMH, TenMH, CONCAT(MaMH, ' - ', TenMH) as Display FROM MonHoc";
-                DataTable dtMonHoc = connectDB.ExecuteQuery(queryMonHoc);
-                cbbMaMon.DataSource = dtMonHoc;
-                cbbMaMon.DisplayMember = "Display";
-                cbbMaMon.ValueMember = "MaMH";
+                // Load Môn học từ Service
+                cbbMaMon.DataSource = LopHocPhanService.Instance.LayDanhSachMonHoc();
+                cbbMaMon.DisplayMember = "Display"; // Tên hiển thị (VD: MH01 - Toán)
+                cbbMaMon.ValueMember = "Value";     // Giá trị ngầm (VD: MH01)
 
-                // Load dữ liệu cho ComboBox Giáo viên
-                string queryGiaoVien = "SELECT MaGV, HoTen, CONCAT(MaGV, ' - ', HoTen) as Display FROM GiaoVien";
-                DataTable dtGiaoVien = connectDB.ExecuteQuery(queryGiaoVien);
-                cbbMaGV.DataSource = dtGiaoVien;
+                // Load Giáo viên từ Service
+                cbbMaGV.DataSource = LopHocPhanService.Instance.LayDanhSachGiaoVien();
                 cbbMaGV.DisplayMember = "Display";
-                cbbMaGV.ValueMember = "MaGV";
+                cbbMaGV.ValueMember = "Value";
 
-                // Load data cho ComboBox Học kỳ
+                // Load Học kỳ (Hardcode như cũ)
+                cbbHocKy.Items.Clear();
                 cbbHocKy.Items.AddRange(new object[] { "1", "2", "3" });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi load dữ liệu: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
+        }
+
+        private void btnXacNhan_Click(object sender, EventArgs e)
+        {
+            // Kiểm tra nhập liệu (Validation)
+            if (string.IsNullOrWhiteSpace(txtMaLHP.Text) ||
+                cbbMaMon.SelectedValue == null ||
+                cbbMaGV.SelectedValue == null ||
+                string.IsNullOrWhiteSpace(cbbHocKy.Text))
+            {
+                MessageBox.Show("Vui lòng nhập đầy đủ thông tin!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Gọi Service để thực hiện Sửa
+            // Hàm Sua trong Service sẽ tự lo logic: 
+            // - Nếu đổi mã -> Kiểm tra trùng, Xóa cũ, Thêm mới.
+            // - Nếu không đổi mã -> Update bình thường.
+            bool ketQua = LopHocPhanService.Instance.Sua(
+                originalMaLop,                  // Mã cũ (để tìm bản ghi gốc)
+                txtMaLHP.Text.Trim(),           // Mã mới (người dùng nhập)
+                cbbMaMon.SelectedValue.ToString(),
+                cbbMaGV.SelectedValue.ToString(),
+                int.Parse(cbbHocKy.Text.Trim()),
+                nbrNam.Value
+            );
+
+            if (ketQua)
+            {
+                MessageBox.Show("Cập nhật lớp học phần thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BackToHome(); // Quay về
             }
         }
 
         private void btnHuy_Click(object sender, EventArgs e)
         {
-            TrangChu trangChu = new TrangChu();
-            trangChu.Show();
-            trangChu.LoadLopHocPhanUserControl();
+            BackToHome();
         }
 
-        private void btnXacNhan_Click(object sender, EventArgs e)
+        // Hàm quay về màn hình chính (Giữ nguyên logic điều hướng của bạn)
+        private void BackToHome()
         {
-            try
+            if (this.Parent != null)
             {
-                // Kiểm tra dữ liệu đầu vào
-                if (string.IsNullOrWhiteSpace(txtMaLHP.Text) ||
-                    cbbMaMon.SelectedValue == null ||
-                    cbbMaGV.SelectedValue == null ||
-                    string.IsNullOrWhiteSpace(cbbHocKy.Text) ||
-                    string.IsNullOrWhiteSpace(nbrNam.Value.ToString()))
-                {
-                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // Kiểm tra nếu mã lớp mới đã tồn tại (chỉ khi mã lớp bị thay đổi)
-                if (txtMaLHP.Text != originalMaLop)
-                {
-                    string checkQuery = "SELECT COUNT(*) FROM LopHocPhan WHERE MaLop = @MaLop";
-                    var checkParam = new SqlParameter("@MaLop", txtMaLHP.Text.Trim());
-                    DataTable dt = connectDB.ExecuteQuery(checkQuery, new[] { checkParam });
-                    if (Convert.ToInt32(dt.Rows[0][0]) > 0)
-                    {
-                        MessageBox.Show("Mã lớp học phần đã tồn tại!", "Thông báo",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
-
-                // Tạo câu lệnh SQL và parameters
-                string query = @"UPDATE LopHocPhan 
-                           SET MaLop = @MaLopMoi,
-                               MaMH = @MaMH,
-                               MaGV = @MaGV,
-                               HocKy = @HocKy,
-                               Nam = @Nam
-                           WHERE MaLop = @MaLopCu";
-
-                List<SqlParameter> parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@MaLopMoi", txtMaLHP.Text.Trim()),
-                new SqlParameter("@MaMH", cbbMaMon.SelectedValue),
-                new SqlParameter("@MaGV", cbbMaGV.SelectedValue),
-                new SqlParameter("@HocKy", cbbHocKy.Text.Trim()),
-                new SqlParameter("@Nam", nbrNam.Value),
-                new SqlParameter("@MaLopCu", originalMaLop)
-            };
-
-                // Thực thi câu lệnh
-                connectDB.ExecuteNonQuery(query, parameters);
-
-                MessageBox.Show("Cập nhật lớp học phần thành công!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                //Load lại form LopHocPhan
+                // Refresh lại dữ liệu ở form cha (LopHocPhan)
+                // Cách đơn giản nhất theo logic cũ:
                 TrangChu trangChu = new TrangChu();
                 trangChu.Show();
                 trangChu.LoadLopHocPhanUserControl();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
-        private void btnXacNhan_Click_1(object sender, EventArgs e)
-        {
-
+                // Ẩn form hiện tại đi
+                this.FindForm()?.Hide();
+            }
         }
     }
 }

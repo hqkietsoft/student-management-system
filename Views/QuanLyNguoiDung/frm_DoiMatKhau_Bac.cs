@@ -10,15 +10,16 @@ using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using Nhom2_QuanLySinhVien.Model;
+using Nhom2_QuanLySinhVien.Services;
 namespace Nhom2_QuanLySinhVien
 {
 	public partial class frm_DoiMatKhau_Bac : Form
 	{
-		private readonly Login login;
+		private readonly AuthService login;
 		public frm_DoiMatKhau_Bac()
 		{
 			InitializeComponent();
-			login = Login.NguoiDung;
+			login = AuthService.NguoiDung;
 			login.ShowOnComboBox(cbo_TenDN_Bac);
 			cbo_TenDN_Bac.Text = "--Choose Username---";
 			txt_MatKhauCu_Bac.Enabled = false;

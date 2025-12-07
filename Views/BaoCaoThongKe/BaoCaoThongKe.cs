@@ -1,114 +1,107 @@
-﻿using Microsoft.Data.SqlClient;
-using OfficeOpenXml;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Windows.Forms;
-using Nhom2_QuanLySinhVien.Model;
-using QuanLySinhVien_Nhom2;
+using OfficeOpenXml; // Thư viện EPPlus
+using Nhom2_QuanLySinhVien.Services;
+using QuanLySinhVien_Nhom2; // Gọi Service
 
 namespace Nhom2_QuanLySinhVien
 {
     public partial class BaoCaoThongKe : UserControl
     {
-        private void BaoCaoThongKe_Load(object sender, EventArgs e)
-        {
-
-        }
-        private ConnectionData connectDB;
         public BaoCaoThongKe()
         {
             InitializeComponent();
-            string conString = "Data Source=(local);Initial Catalog=QUANLYSINHVIEN;Integrated Security=True;Encrypt=False;Trust Server Certificate=True";
-            connectDB = new ConnectionData(conString);
 
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            // Cấu hình License cho EPPlus (Bắt buộc)
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             LoadComboBoxData();
         }
 
+        private void BaoCaoThongKe_Load(object sender, EventArgs e)
+        {
+        }
+
         private void LoadComboBoxData()
         {
-            string queryLop = "SELECT DISTINCT MaLop FROM LopHoc";
-            DataTable dtLop = connectDB.ExecuteQuery(queryLop);
-            cbbLopHoc.DataSource = dtLop;
-            cbbLopHoc.DisplayMember = "MaLop";
-            cbbLopHoc.ValueMember = "MaLop";
+            try
+            {
+                // 1. Load Lớp học (Ép kiểu rõ ràng về List<string>)
+                var rawLop = BaoCaoService.Instance.LayDanhSachLop();
+                List<string> listLop = ((IEnumerable<string>)rawLop).ToList();
 
-            string queryLop1 = "SELECT MaMH, TenMH FROM MonHoc";
-            DataTable dtLop1 = connectDB.ExecuteQuery(queryLop);
-            cbbLopHoc1.DataSource = dtLop1;
-            cbbLopHoc1.DisplayMember = "MaLop";
-            cbbLopHoc1.ValueMember = "MaLop";
+                cbbLopHoc.DataSource = listLop;
 
-            string queryMonHoc = "SELECT MaMH, TenMH FROM MonHoc";
-            DataTable dtMonHoc = connectDB.ExecuteQuery(queryMonHoc);
-            cbbMonHoc.DataSource = dtMonHoc;
-            cbbMonHoc.DisplayMember = "MaMH";
-            cbbMonHoc.ValueMember = "MaMH";
+                // Tạo một list mới cho combobox thứ 2 để tránh xung đột binding
+                cbbLopHoc1.DataSource = new List<string>(listLop);
 
-            string queryMaSV = "SELECT MaSV FROM SinhVien";
-            DataTable dtMaSV = connectDB.ExecuteQuery(queryMaSV);
-            cbbMaSV.DataSource = dtMaSV;
-            cbbMaSV.DisplayMember = "MaSV";
-            cbbMaSV.ValueMember = "MaSV";
+                // 2. Load Môn học (Service trả về List object {MaMh, TenMh})
+                // Ta dùng BindingSource để an toàn
+                var listMon = BaoCaoService.Instance.LayDanhSachMonHoc();
+                BindingSource bsMon = new BindingSource();
+                bsMon.DataSource = listMon;
+
+                cbbMonHoc.DataSource = bsMon;
+                cbbMonHoc.DisplayMember = "MaMh";
+                cbbMonHoc.ValueMember = "MaMh";
+
+                // 3. Load Sinh viên
+                var rawSV = BaoCaoService.Instance.LayDanhSachSinhVien();
+                List<string> listSV = ((IEnumerable<string>)rawSV).ToList();
+                cbbMaSV.DataSource = listSV;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
         }
 
-        // Xuất danh sách sinh viên của một lớp ra file Excel
+        // --- NÚT 1: Xuất danh sách SV của lớp ---
         private void btnXuatDanhSachSV_Click(object sender, EventArgs e)
         {
-            string maLop = cbbLopHoc1.SelectedValue.ToString();
-            string query = "SELECT * FROM SinhVien WHERE MaLop = @MaLop";
-            SqlParameter param = new SqlParameter("@MaLop", maLop);
-            DataTable dataTable = connectDB.ExecuteQuery(query, new[] { param });
+            if (cbbLopHoc1.SelectedItem == null) return;
 
-            ExportToExcel(dataTable);
+            string maLop = cbbLopHoc1.Text; // Lấy text trực tiếp nếu DataSource là List<string>
+
+            var dataList = BaoCaoService.Instance.LayDanhSachSinhVienTheoLop(maLop);
+            DataTable dt = ConvertToDataTable(dataList); // Chuyển sang DataTable
+
+            ExportToExcel(dt);
         }
 
-        // Xuất bảng điểm của lớp cho một môn học ra file Excel
+        // --- NÚT 2: Xuất bảng điểm môn học của lớp ---
         private void btnXuatBaiDiem_Click(object sender, EventArgs e)
         {
-            string maLop = cbbLopHoc.SelectedValue.ToString();
+            if (cbbLopHoc.SelectedItem == null || cbbMonHoc.SelectedValue == null) return;
+
+            string maLop = cbbLopHoc.Text;
             string maMonHoc = cbbMonHoc.SelectedValue.ToString();
 
-            string query = "SELECT s.MaLop,d.MaMH, s.MaSV,s.HoDem, s.Ten, d.DiemCC, d.DiemHS1, d.DiemHS2L1, d.DiemHS2L2, d.DiemQuaTrinh, d.DiemThi, d.DiemHocPhan, d.DiemTBHK FROM SinhVien s " +
-                           "JOIN Diem d ON s.MaSV = d.MaSV WHERE s.MaLop = @MaLop AND d.MaMH = @MaMH";
-            SqlParameter[] parameters = {
-                new SqlParameter("@MaLop", maLop),
-                new SqlParameter("@MaMH", maMonHoc)
-            };
+            var dataList = BaoCaoService.Instance.LayBangDiemMonHocCuaLop(maLop, maMonHoc);
+            DataTable dt = ConvertToDataTable(dataList);
 
-            DataTable dataTable = connectDB.ExecuteQuery(query, parameters);
-            ExportToExcel(dataTable);
+            ExportToExcel(dt);
         }
 
-        // Xuất báo cáo thông tin bảng điểm của sinh viên theo mã sinh viên
+        // --- NÚT 3: Xuất báo cáo cá nhân (Mở form Report) ---
         private void btnXuatBaoCaoSV_Click(object sender, EventArgs e)
         {
-            //string maSinhVien = cbbMaSV.SelectedValue.ToString();
+            if (cbbMaSV.SelectedItem == null) return;
 
-            //string query = "SELECT s.MaSV,s.HoDem, s.Ten,m.TenMH, d.DiemCC, d.DiemHS1, d.DiemHS2L1, d.DiemHS2L2, d.DiemQuaTrinh, d.DiemThi, d.DiemHocPhan, d.DiemTBHK " +
-            //               "FROM SinhVien s " +
-            //               "JOIN Diem d ON s.MaSV = d.MaSV " +
-            //               "JOIN MonHoc m ON d.MaMH = m.MaMH WHERE s.MaSV = @MaSV";
-            //SqlParameter param = new SqlParameter("@MaSV", maSinhVien);
-            //DataTable dataTable = connectDB.ExecuteQuery(query, new[] { param });
+            string maSinhVien = cbbMaSV.Text;
 
-            //ExportToExcel(dataTable);
-
-            string maSinhVien = cbbMaSV.SelectedValue.ToString();
-
-            //Mở form BCTK và truyền Mã sinh viên vào
+            // Mở form BCTK (Code cũ của bạn)
+            // Lưu ý: Form BCTK cũng cần được sửa để dùng EF Core nếu nó đang dùng SQL
             BCTK reportForm = new BCTK(maSinhVien);
             reportForm.ShowDialog();
         }
 
+        // --- HÀM HỖ TRỢ XUẤT EXCEL (Giữ nguyên logic EPPlus) ---
         private void ExportToExcel(DataTable dt)
         {
             if (dt == null || dt.Rows.Count == 0)
@@ -119,53 +112,77 @@ namespace Nhom2_QuanLySinhVien
 
             try
             {
-                // Khởi tạo một đối tượng ExcelPackage
                 using (var package = new ExcelPackage())
                 {
-                    // Thêm một Worksheet mới
                     var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+                    worksheet.Cells["A1"].LoadFromDataTable(dt, true);
 
-                    // Tải dữ liệu từ DataTable vào Worksheet
-                    worksheet.Cells["A1"].LoadFromDataTable(dt, true); // "true" cho phép sử dụng header
-
+                    // Format ngày tháng (Tìm cột có tên chứa chữ "Ngày" hoặc "Date")
                     for (int col = 1; col <= dt.Columns.Count; col++)
                     {
-                        // Nếu cột là Ngày Sinh (ví dụ cột có tên là "NgaySinh")
-                        if (dt.Columns[col - 1].ColumnName.Equals("NgaySinh", StringComparison.OrdinalIgnoreCase))
+                        if (dt.Columns[col - 1].ColumnName.ToLower().Contains("ngày") ||
+                            dt.Columns[col - 1].ColumnName.ToLower().Contains("date"))
                         {
-                            // Đặt định dạng ngày cho cột Ngày Sinh
                             worksheet.Column(col).Style.Numberformat.Format = "dd/MM/yyyy";
                         }
-                    }
-
-                    // Căn chỉnh độ rộng cột cho phù hợp với nội dung
-                    for (int col = 1; col <= dt.Columns.Count; col++)
-                    {
-                        // Căn chỉnh độ rộng cột
                         worksheet.Column(col).AutoFit();
-
-                        // Nếu muốn căn độ rộng cụ thể là 14px
-                        worksheet.Column(col).Width = 14;
                     }
 
-                    // Mở SaveFileDialog để chọn đường dẫn và tên file lưu
                     using (var saveFileDialog = new SaveFileDialog())
                     {
                         saveFileDialog.Filter = "Excel Files|*.xlsx";
                         if (saveFileDialog.ShowDialog() == DialogResult.OK)
                         {
-                            // Lưu file Excel vào vị trí người dùng chọn
                             File.WriteAllBytes(saveFileDialog.FileName, package.GetAsByteArray());
-                            MessageBox.Show("Dữ liệu đã được xuất thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show("Xuất Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Hiển thị thông báo lỗi nếu có
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // --- HÀM HỖ TRỢ: CHUYỂN LIST SANG DATATABLE (Generic) ---
+        // Giúp tương thích giữa EF Core (List) và EPPlus (DataTable)
+        // Hàm mới: Không dùng <T> nữa mà dùng object để nhận Anonymous Type
+        public DataTable ConvertToDataTable(object source)
+        {
+            DataTable table = new DataTable();
+
+            // Ép kiểu sang danh sách các đối tượng
+            var list = source as System.Collections.IEnumerable;
+            if (list == null) return table;
+
+            // Lấy phần tử đầu tiên để soi cấu trúc cột
+            var enumerator = list.GetEnumerator();
+            if (!enumerator.MoveNext()) return table; // Danh sách rỗng
+
+            var firstItem = enumerator.Current;
+
+            // Dùng Reflection để lấy tên cột từ đối tượng đầu tiên
+            var properties = firstItem.GetType().GetProperties();
+
+            foreach (var prop in properties)
+            {
+                // Xử lý kiểu Nullable (ví dụ int? -> int) để DataTable không lỗi
+                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+            }
+
+            // Reset lại và duyệt từ đầu để đổ dữ liệu
+            foreach (var item in list)
+            {
+                DataRow row = table.NewRow();
+                foreach (var prop in properties)
+                {
+                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                }
+                table.Rows.Add(row);
+            }
+
+            return table;
         }
 
         private void guna2ControlBox2_Click(object sender, EventArgs e)
@@ -177,9 +194,6 @@ namespace Nhom2_QuanLySinhVien
             }
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
+        private void label1_Click(object sender, EventArgs e) { }
     }
 }

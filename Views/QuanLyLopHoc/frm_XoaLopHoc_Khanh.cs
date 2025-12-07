@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nhom2_QuanLySinhVien.Services;
 
 namespace Nhom2_QuanLySinhVien
 {
@@ -15,118 +9,72 @@ namespace Nhom2_QuanLySinhVien
         public frm_XoaLopHoc_Khanh()
         {
             InitializeComponent();
-             
         }
+
         private void frm_Xoa_Khanh_Load(object sender, EventArgs e)
         {
             LoadMaLop();
         }
-        #region Cập nhật mã lớp lên combobox
+
         private void LoadMaLop()
         {
-            try
-            {
-                cb_MaLop_Khanh.DataSource = TruyVan.LayDanhSachMaLop();
-                cb_MaLop_Khanh.DisplayMember = "MaLop";
-                cb_MaLop_Khanh.ValueMember = "MaLop";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tải danh sách mã lớp: " + ex.Message, "Lỗi");
-            }
+            // Load danh sách Mã lớp vào ComboBox
+            // Vì hàm LayTatCaLopHoc trả về List Object, ta gán trực tiếp
+            // và chọn ValueMember là tên thuộc tính "Mã_Lớp" (như trong Service định nghĩa)
+            cb_MaLop_Khanh.DataSource = LopHocService.Instance.LayTatCaLopHoc();
+            cb_MaLop_Khanh.DisplayMember = "Mã_Lớp";
+            cb_MaLop_Khanh.ValueMember = "Mã_Lớp";
         }
 
-        #endregion
-
-        #region Nút tìm theo mã lớp
+        // Nút Tìm (Để hiện thông tin trước khi xóa)
         private void btn_Tim_Khanh_Click(object sender, EventArgs e)
         {
-            string maLop = cb_MaLop_Khanh.SelectedValue?.ToString();
-            if (string.IsNullOrEmpty(maLop))
-            {
-                MessageBox.Show("Vui lòng chọn mã lớp!", "Thông báo");
-                return;
-            }
+            string maLop = cb_MaLop_Khanh.Text;
 
-            try
+            // Gọi hàm hỗ trợ lấy thông tin (Cần cập nhật Service hoặc viết lại logic ở đây)
+            // Để nhanh gọn, tôi gọi hàm lấy thông tin của Service và tận dụng biến TempData
+            LopHocService.Instance.LayThongTinLopVaoTextBox(maLop, tb_TenLop_Khanh, tb_KhoaHoc_Khanh);
+
+            // Lấy tiếp các trường còn lại từ TempData (Cầu nối)
+            if (LopHocService.TempData != null && LopHocService.TempData.MaLop == maLop)
             {
-                DataTable dt = TruyVan.LayThongTinLop(maLop);
-                if (dt.Rows.Count > 0)
-                {
-                    tb_TenLop_Khanh.Text = dt.Rows[0]["TenLop"].ToString();
-                    tb_KhoaHoc_Khanh.Text = dt.Rows[0]["KhoaHoc"].ToString();
-                    tb_HeDaoTao_Khanh.Text = dt.Rows[0]["HeDaoTao"].ToString();
-                    tb_NamNhapHoc_Khanh.Text = dt.Rows[0]["NamNhapHoc"].ToString();
-                }
-                else
-                {
-                    MessageBox.Show("Không tìm thấy thông tin lớp học!", "Thông báo");
-                }
+                tb_HeDaoTao_Khanh.Text = LopHocService.TempData.HeDaoTao;
+                tb_NamNhapHoc_Khanh.Text = LopHocService.TempData.NamNhapHoc;
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show("Lỗi khi lấy thông tin lớp học: " + ex.Message, "Lỗi");
+                MessageBox.Show("Không tìm thấy thông tin lớp.");
+                ClearTextBoxes();
             }
         }
-        #endregion
 
-
-        #region Nút Xoá lớp
         private void btn_Xoa_Khanh_Click(object sender, EventArgs e)
         {
-            string maLop = cb_MaLop_Khanh.SelectedValue?.ToString();
-            if (string.IsNullOrEmpty(maLop))
-            {
-                MessageBox.Show("Vui lòng chọn mã lớp để xóa!", "Thông báo");
-                return;
-            }
+            string maLop = cb_MaLop_Khanh.Text;
+            if (string.IsNullOrEmpty(maLop)) return;
 
-            DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn xóa lớp học này?", "Xác nhận", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                try
-                {
-                    int kq = TruyVan.XoaLop(maLop);
-                    if (kq > 0)
-                    {
-                        MessageBox.Show("Xóa lớp học thành công!", "Thông báo");
-                        LoadMaLop(); 
-                        ClearTextBoxes();
-                        frm_QuanLyLopHoc_Khanh QuanLyLopHoc = new frm_QuanLyLopHoc_Khanh();
-                        QuanLyLopHoc.HienThi(); 
-                        this.Close();
-                        
-                    }
-                    else
-                    {
-                        MessageBox.Show("Không xóa được lớp học.", "Lỗi");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lớp này đang có sinh viên theo học.", "Lỗi");
-                }
+                // Gọi Service Xóa
+                LopHocService.Instance.Xoa(maLop);
+
+                // Refresh lại
+                LoadMaLop();
+                ClearTextBoxes();
             }
         }
 
-        #endregion
-
-        #region Xoá các textbox
         private void ClearTextBoxes()
         {
-            tb_TenLop_Khanh.Text = "";
-            tb_KhoaHoc_Khanh.Text = "";
-            tb_HeDaoTao_Khanh.Text = "";
-            tb_NamNhapHoc_Khanh.Text = "";
+            tb_TenLop_Khanh.Clear();
+            tb_KhoaHoc_Khanh.Clear();
+            tb_HeDaoTao_Khanh.Clear();
+            tb_NamNhapHoc_Khanh.Clear();
         }
 
-        #endregion
-
-        #region Nút Huỷ
         private void btn_Huy_Khanh_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-        #endregion
     }
 }
