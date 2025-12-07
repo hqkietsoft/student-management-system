@@ -32,7 +32,7 @@ Ban đầu, dự án sử dụng công nghệ cũ ADO.NET với các câu lệnh
 
 | Báo Cáo Thống Kê |
 |:---:|:---:|
-| ![Student](Services/Resources/pictures/bctk.png) |
+| ![Student](Services/Resources/pictures/bctkpng.png) |
 
 ## 🚀 Tính năng Chính
 
