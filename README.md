@@ -77,7 +77,7 @@ Giải pháp được tổ chức theo mô hình **Kiến trúc 3 lớp (3-Layer
 **Hà Gia Kiệt**
 * **Vai trò:** Lập trình viên Backend & Ứng dụng Desktop
 * **Học vấn:** Kỹ sư Công nghệ thông tin (GPA 3.38)
-* **Kỹ năng:** C#, .NET, Flutter, SQL, Kiến thức nền tảng Cloud.
+* **Kỹ năng:** C# (.NET Core/Framework, ASP.NET Core, LINQ, ADO.NET), Entity Framework Core (EF Core).
 
 ---
 *Nếu bạn thấy dự án này hữu ích, hãy tặng mình 1 sao (star) nhé! ⭐️*
